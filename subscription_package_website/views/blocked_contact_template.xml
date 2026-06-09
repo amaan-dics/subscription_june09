@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="blocked_contacts_template" name="Blocked Contacts">
+        <t t-call="website.layout">
+            <section class="match-page">
+                <div class="container py-5">
+                    <h1 class="match-title mb-4">
+                        Blocked Contacts
+                    </h1>
+                    <t t-if="blocked_records">
+                        <div class="req-list">
+                            <t t-foreach="blocked_records" t-as="block">
+
+                                <div class="req-item">
+
+                                    <div class="req-user">
+
+                                        <img t-if="block.blocked_user_id.image_1920"
+                                             t-att-src="'/web/image/res.partner/%s/image_1920' % block.blocked_user_id.id"
+                                             class="req-avatar"/>
+
+                                        <img t-else=""
+                                             src="/web/static/img/avatar.png"
+                                             class="req-avatar"/>
+
+                                        <div class="req-info">
+
+                                            <div class="req-name">
+                                                <t t-esc="block.blocked_user_id.name"/>
+                                            </div>
+
+                                            <div class="req-text">
+                                                Blocked Contact
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="req-buttons">
+                                        <a t-att-href="'/chat/unblock_user/%s' % block.id"
+                                           class="req-accept">
+                                            Unblock
+                                        </a>
+                                    </div>
+
+                                </div>
+
+                            </t>
+                        </div>
+                    </t>
+
+                    <t t-else="">
+                        <div class="req-empty">
+                            <div class="req-empty-title">
+                                No Blocked Contacts
+                            </div>
+                            <div class="req-empty-sub">
+                                You haven't blocked any contacts yet.
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </section>
+        </t>
+    </template>
+</odoo>

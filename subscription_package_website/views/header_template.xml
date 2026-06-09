@@ -1,0 +1,144 @@
+<odoo>
+    <template id="custom_header_inherit" inherit_id="website.layout">
+        <xpath expr="//header" position="replace">
+            <header class="custom-header">
+                <nav class="custom-nav">
+                    <a href="/" class="nav-brand">
+                        <span class="nav-arabic">ميزان الذهب</span>
+                        <span class="nav-sep">|</span>
+                        <span class="nav-en">Demo Platform</span>
+                    </a>
+
+                    <input type="checkbox" id="menu-toggle" class="menu-toggle"/>
+
+                    <div class="nav-right-controls">
+                        <t t-if="request.session.uid">
+                            <div class="mobile-chat-icon-wrap">
+                                <a href="/chatbox" class="chat-head-btn">
+                                    <i class="fa fa-comments"/>
+                                </a>
+                                <span id="chat_unread_badge_mobile" class="chat-unread-badge">
+                                    0
+                                </span>
+                            </div>
+                        </t>
+                        <label for="menu-toggle" class="menu-btn">
+                            <span/>
+                            <span/>
+                            <span/>
+                        </label>
+                    </div>
+
+                    <div class="nav-menu">
+                        <ul class="nav-links">
+                            <li><a href="/#learn">Learn</a></li>
+                            <li><a href="/#conditions">Conditions</a></li>
+                            <li><a href="/#iddah">Iddah</a></li>
+                            <li><a href="/#marjas">Marjas</a></li>
+                            <li><a href="/#pricing">Pricing</a></li>
+                            <li><a href="/#consult">Scholars</a></li>
+                            <li><a href="/#adab">Adab</a></li>
+                            <li><a href="/match">Profiles</a></li>
+                            <li><a href="/my_requests">Requests</a></li>
+                        </ul>
+                        <t t-if="not request.session.uid">
+                            <a href="/web/login" class="nav-cta mobile-cta d-lg-none">Join Now</a>
+                        </t>
+                        <t t-else="">
+                            <!-- Added d-lg-none here to hide on desktop -->
+                            <div class="mobile-user-section d-lg-none">
+
+                                <!-- Hidden checkbox drives open/close of nested links -->
+                                <input type="checkbox" id="mobile-user-toggle" class="mobile-user-toggle"/>
+
+                                <!-- Username row — acts as the toggle trigger -->
+                                <label for="mobile-user-toggle" class="mobile-user-trigger">
+                                    <i class="fa fa-user-circle-o" style="color:#c49a2e; margin-right:0.6rem;"/>
+                                    <span class="mobile-user-name">
+                                        <t t-esc="request.env.user.name"/>
+                                    </span>
+                                    <i class="fa fa-chevron-down mobile-user-chevron"/>
+                                </label>
+
+                                <!-- Nested dropdown links — visible when checkbox is checked -->
+                                <div class="mobile-user-dropdown">
+                                    <a href="/user/profile" class="mobile-user-link">
+                                        <i class="fa fa-user-circle-o" style="color:#c49a2e;"/>
+                                        Profile
+                                    </a>
+                                    <a href="/blocked_contacts" class="mobile-user-link">
+                                        <i class="fa fa-ban" style="color:#c49a2e;"/>
+                                        Blocked Contacts
+                                    </a>
+                                    <a href="/web/session/logout?redirect=/" class="mobile-user-link mobile-user-logout">
+                                        <i class="fa fa-sign-out"/>
+                                        Logout
+                                    </a>
+                                </div>
+
+                            </div>
+                            <!-- Added d-lg-none here to hide on desktop -->
+                            <a href="/chatbox" class="nav-cta mobile-cta d-lg-none">Chat</a>
+                        </t>
+                    </div>
+
+                    <t t-if="not request.session.uid">
+                        <a href="/web/login" class="nav-cta desktop-cta">Join Now</a>
+                    </t>
+                    <t t-else="">
+                        <div class="desktop-cta d-none d-lg-flex align-items-center gap-3">
+                            <div style="position:relative;">
+                                <a href="/chatbox" class="chat-head-btn">
+                                    <i class="fa fa-comments"/>
+                                </a>
+                                <span id="chat_unread_badge" class="chat-unread-badge">
+                                    0
+                                </span>
+                            </div>
+                            <div class="dropdown">
+                                <a href="#" class="d-flex align-items-center gap-2 dropdown-toggle" id="userMenu"
+                                   data-bs-toggle="dropdown" aria-expanded="false"
+                                   style="color: #d3aa39; text-decoration: none; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;">
+                                    <t t-esc="request.env.user.name"/>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="userMenu"
+                                    style="background: #111c14; border: 1px solid rgba(212, 175, 55, 0.08); border-radius: 6px; padding: 0.5rem 0; margin-top: 15px;">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" href="/user/profile"
+                                           style="color: #fff; font-size: 0.8rem; padding: 0.6rem 1.5rem;">
+                                            <i class="fa fa-user-circle-o me-2" style="color: #c49a2e;"/>
+                                            Profile
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider"
+                                            style="border-color: rgba(255,255,255,0.08); margin: 0.2rem 0;"/>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" href="/blocked_contacts"
+                                           style="color: #fff; font-size: 0.8rem; padding: 0.6rem 1.5rem;">
+                                            <i class="fa fa-user-circle-o me-2" style="color: #c49a2e;"/>
+                                            Blocked Contact
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider"
+                                            style="border-color: rgba(255,255,255,0.08); margin: 0.2rem 0;"/>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center"
+                                           href="/web/session/logout?redirect=/"
+                                           style="color: #ff4848d1; font-size: 0.8rem; padding: 0.6rem 1.5rem;">
+                                            <i class="fa fa-sign-out me-2"/>
+                                            Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </t>
+                </nav>
+            </header>
+        </xpath>
+    </template>
+</odoo>
