@@ -1,22 +1,3 @@
-# -*- coding: utf-8 -*-
-# ============================================================
-# chat_mute_user.py
-# MODULE: subscription_package_extended
-# FILE PATH: models/chat_mute_user.py
-#
-# [CHANGE 13] MUTE USER MODEL
-# Mirrors chat.block.user exactly — same fields, same logic.
-# A record here means: user_id has muted muted_user_id.
-# Effect: popup notifications from muted_user_id are suppressed
-# in /portal/notifications. Messages still arrive and are visible.
-#
-# Add to security/ir.model.access.csv:
-#   access_chat_mute_user,chat.mute.user,model_chat_mute_user,base.group_portal,1,1,1,0
-#
-# Add to __manifest__.py models list:
-#   'models/chat_mute_user.py',
-# ============================================================
-
 from odoo import models, fields
 
 

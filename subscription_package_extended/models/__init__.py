@@ -14,3 +14,4 @@ from . import chat_terms
 from . import chat_terms_acceptance
 from . import chat_block_user
 from . import chat_mute_user
+from . import user_verification

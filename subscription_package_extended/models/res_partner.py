@@ -49,3 +49,9 @@ class ResPartner(models.Model):
             chat_count = chat_map.get(rec.id, 0)
             rec.connection_used = conn_map.get(rec.id, 0)
             rec.chat_used = max(chat_count - 1, 0)
+
+    is_verified = fields.Boolean(
+        string='Verified Badge',
+        default=False,
+        help='User has purchased the verification badge and it is displayed on their profile.',
+    )

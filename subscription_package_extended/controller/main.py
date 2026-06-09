@@ -99,93 +99,110 @@ class PortalNotificationController(http.Controller):
 
     @http.route('/portal/notifications', type='json', auth='user')
     def get_notifications(self):
-        current = request.env.user.partner_id
+        partner = request.env.user.partner_id
 
-        # Fetch muted partner ids for this user (list of integers)
-        muted_ids = request.env['chat.mute.user'].sudo().search([
-            ('user_id', '=', current.id)
+        blocked_partner_ids = request.env['chat.block.user'].sudo().search([
+            ('user_id', '=', partner.id)
+        ]).mapped('blocked_user_id').ids
+
+        # muted users
+        muted_partner_ids = request.env['chat.mute.user'].sudo().search([
+            ('user_id', '=', partner.id)
         ]).mapped('muted_user_id').ids
 
         notifications = request.env['portal.notification'].sudo().search([
-            ('partner_id', '=', current.id),
-            ('is_read', '=', False)
-        ], order='create_date desc', limit=20)
-
-        result = []
-        for n in notifications:
-            # FIX 1: n.ref_user_id is ALREADY the partner record. Do not use .browse()
-            sender = n.ref_user_id
-
-            # FIX 2: Compare integer ID (.id) against the muted_ids integer list
-            if sender and sender.id in muted_ids:
-                continue
-
-            result.append({
-                'id': n.id,
-                'from': sender.name if sender else 'Unknown',
-                'from_id': sender.id if sender else 0,  # FIX 3: Pass the integer ID so JSON can serialize it
-                'message': n.message or '',
-                'image': '/partner/avatar/%s/image_128' % (sender.id if sender else 0)
-            })
-
-        # unread_count includes ALL unread notifications (including muted)
-        unread_count = request.env['portal.notification'].sudo().search_count([
-            ('partner_id', '=', current.id),
-            ('is_read', '=', False)
+            ('partner_id', '=', partner.id),
+            ('is_read', '=', False),
         ])
 
+        # Filter out blocked + muted users for popups
+        notifications = notifications.filtered(
+            lambda n: n.ref_user_id.id not in blocked_partner_ids and
+                      n.ref_user_id.id not in muted_partner_ids
+        )
+
+        data = []
+        for notif in notifications:
+            data.append({
+                'id': notif.id,
+                'message': notif.message,
+                'from': notif.ref_user_id.name if notif.ref_user_id else 'User',
+                'from_id': notif.ref_user_id.id if notif.ref_user_id else False,
+                'image': '/partner/avatar/%s/image_128' % notif.ref_user_id if notif.ref_user_id else '',
+            })
+
+        notifications.write({'is_read': True})
+
+        total_unread = 0
+
+        members = request.env['discuss.channel.member'].sudo().search([
+            ('partner_id', '=', partner.id)
+        ])
+
+        for member in members:
+            seen_id = member.seen_message_id.id or 0
+
+            total_unread += request.env['mail.message'].sudo().search_count([
+                ('model', '=', 'discuss.channel'),
+                ('res_id', '=', member.channel_id.id),
+                ('id', '>', seen_id),
+                ('author_id', '!=', partner.id),
+                ('author_id', 'not in', blocked_partner_ids),
+                ('message_type', '=', 'comment'),
+            ])
+
         return {
-            'notifications': result,
-            'unread_count': unread_count,
+            'notifications': data,
+            'unread_count': total_unread,
         }
 
 
-@http.route('/chat/contacts_unread_counts', type='json', auth='user')
-def chat_contacts_unread_counts(self, **kwargs):
-    partner = request.env.user.partner_id
+    @http.route('/chat/contacts_unread_counts', type='json', auth='user')
+    def chat_contacts_unread_counts(self, **kwargs):
+        partner = request.env.user.partner_id
 
-    # Pull blocked contacts to exclude them from counts
-    blocked_partner_ids = []
-    if request.env['chat.block.user']:
-        blocked_partner_ids = request.env['chat.block.user'].sudo().search([
-            ('user_id', '=', partner.id)
-        ]).mapped('blocked_user_id.id')
+        # Pull blocked contacts to exclude them from counts
+        blocked_partner_ids = []
+        if request.env['chat.block.user']:
+            blocked_partner_ids = request.env['chat.block.user'].sudo().search([
+                ('user_id', '=', partner.id)
+            ]).mapped('blocked_user_id.id')
 
-    # Find all chat channel memberships for the logged-in user
-    members = request.env['discuss.channel.member'].sudo().search([
-        ('partner_id', '=', partner.id)
-    ])
-
-    unread_map = {}
-    for member in members:
-        channel = member.channel_id
-        if channel.channel_type != 'chat':
-            continue
-
-        # Identify the other user in this direct chat
-        other_members = channel.channel_member_ids.filtered(lambda m: m.partner_id.id != partner.id)
-        if not other_members:
-            continue
-        other_partner_id = other_members[0].partner_id.id
-
-        if other_partner_id in blocked_partner_ids:
-            continue
-
-        # Compare against the user's last seen message ID milestone
-        seen_id = member.seen_message_id.id or 0
-        count = request.env['mail.message'].sudo().search_count([
-            ('model', '=', 'discuss.channel'),
-            ('res_id', '=', channel.id),
-            ('id', '>', seen_id),
-            ('author_id', '!=', partner.id),
-            ('author_id', 'not in', blocked_partner_ids),
-            ('message_type', '=', 'comment'),
+        # Find all chat channel memberships for the logged-in user
+        members = request.env['discuss.channel.member'].sudo().search([
+            ('partner_id', '=', partner.id)
         ])
 
-        if count > 0:
-            unread_map[other_partner_id] = count
+        unread_map = {}
+        for member in members:
+            channel = member.channel_id
+            if channel.channel_type != 'chat':
+                continue
 
-    return unread_map
+            # Identify the other user in this direct chat
+            other_members = channel.channel_member_ids.filtered(lambda m: m.partner_id.id != partner.id)
+            if not other_members:
+                continue
+            other_partner_id = other_members[0].partner_id.id
+
+            if other_partner_id in blocked_partner_ids:
+                continue
+
+            # Compare against the user's last seen message ID milestone
+            seen_id = member.seen_message_id.id or 0
+            count = request.env['mail.message'].sudo().search_count([
+                ('model', '=', 'discuss.channel'),
+                ('res_id', '=', channel.id),
+                ('id', '>', seen_id),
+                ('author_id', '!=', partner.id),
+                ('author_id', 'not in', blocked_partner_ids),
+                ('message_type', '=', 'comment'),
+            ])
+
+            if count > 0:
+                unread_map[other_partner_id] = count
+
+        return unread_map
 
 class PartnerAvatarController(http.Controller):
 
@@ -216,3 +233,58 @@ class PartnerAvatarController(http.Controller):
             ('Cache-Control', 'public, max-age=86400'), # Cache for 24 hours to boost performance
         ]
         return request.make_response(image_data, headers)
+
+
+class VerificationController(http.Controller):
+
+    @http.route('/purchase_verification', type='json', auth='user')
+    def purchase_verification(self, payment_reference=None):
+        """
+        [CHANGE 15] Purchase verification badge.
+
+        Called by your payment gateway webhook or form when the user
+        successfully completes payment for the verification badge.
+
+        Args:
+            payment_reference: optional payment/transaction ID for audit trail
+
+        Returns:
+            {'status': 'ok', 'message': '...'}
+        """
+        partner = request.env.user.partner_id
+
+        # Check if already verified
+        verification = request.env['user.verification'].sudo().search([
+            ('partner_id', '=', partner.id)
+        ], limit=1)
+
+        if verification:
+            # Already verified, just return success
+            return {'status': 'ok', 'message': 'Already verified!'}
+
+        # Create new verification record
+        request.env['user.verification'].sudo().create({
+            'partner_id': partner.id,
+            'is_verified': True,
+            'payment_reference': payment_reference or '',
+        })
+
+        # Also set the flag on partner for quick template access
+        partner.sudo().write({'is_verified': True})
+
+        return {
+            'status': 'ok',
+            'message': 'Verification badge activated! Refresh the page to see your badge.'
+        }
+
+    @http.route('/verify_check', type='json', auth='user')
+    def verify_check(self):
+        """
+        [CHANGE 15] Check current user's verification status.
+        Useful for updating UI without page reload.
+
+        Returns:
+            {'is_verified': bool}
+        """
+        partner = request.env.user.partner_id
+        return {'is_verified': bool(partner.is_verified)}

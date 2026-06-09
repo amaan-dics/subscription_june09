@@ -115,6 +115,11 @@
                            '&amp;', ('from_user_id','=',user.id), ('to_user_id','=',current_user.id)], limit=1)"/>
                             <div class="match-card">
                                 <div class="online-dot"/>
+                                <t t-if="user.is_verified">
+                                    <div class="verified-badge" title="This user has been verified">
+                                        <i class="fa fa-check-circle"/>
+                                    </div>
+                                </t>
                                 <div class="avatar-wrap">
                                     <img t-att-src="'/partner/avatar/%s/image_1920' % user.id"
                                          class="member-avatar"/>

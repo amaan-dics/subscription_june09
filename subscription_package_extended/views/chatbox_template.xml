@@ -53,6 +53,12 @@
                                             <img t-if="p.image_128"
                                                  t-att-src="'/partner/avatar/%s/image_128' % p.id"
                                                  class="chat-avatar"/>
+
+                                            <t t-if="p.is_verified">
+                                                <div class="verified-badge" title="This user has been verified">
+                                                    <i class="fa fa-check-circle"/>
+                                                </div>
+                                            </t>
                                         </div>
                                         <div class="contact-info flex-grow-1 overflow-hidden">
                                             <div class="d-flex justify-content-between align-items-center w-100">
@@ -108,18 +114,13 @@
                                         <i class="fa fa-ellipsis-v"/>
                                     </button>
                                     <div class="chat-action-menu d-none" id="chat_action_menu">
-                                        <a href="javascript:void(0)"
-                                           class="chat-action-item"
-                                           id="mute_user_btn"
-                                           data-id="">
-                                            <i class="fa fa-bell-slash me-2"/>
-                                            Mute
+                                        <a href="#" id="mute_user_btn" class="chat-action-item" data-action="mute">
+                                            <i class="fa fa-bell-slash me-2" id="mute_icon"></i>
+                                            <span id="mute_text">Mute User</span>
                                         </a>
-
                                         <a href="javascript:void(0)"
                                            class="chat-action-item text-danger"
-                                           id="block_user_btn"
-                                           data-id="">
+                                           id="block_user_btn">
                                             <i class="fa fa-ban me-2"/>
                                             Block
                                         </a>
@@ -151,7 +152,11 @@
                     </div>
                 </div>
             </div>
-
+            <!-- Pass muted users list to JavaScript -->
+            <script>
+                window.mutedIds =<t t-out="muted_ids or []"/>;
+                console.log("Muted IDs loaded:", window.mutedIds);
+            </script>
         </t>
     </template>
     <template id="no_plan_template" name="No Subscription Plan">

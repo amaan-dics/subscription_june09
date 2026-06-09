@@ -252,6 +252,11 @@ class ConnectController(http.Controller, SubscriptionMixin):
         partner_ids = set()
         blocked_ids = request.env['chat.block.user'].sudo().search(
             [('user_id', '=', current.id)]).mapped('blocked_user_id').ids
+
+        muted_ids = request.env['chat.mute.user'].sudo().search([
+            ('user_id', '=', request.env.user.partner_id.id)
+        ]).mapped('muted_user_id.id')
+
         requests_data = request.env['connect.request'].sudo().search([('state', '=', 'accepted'), '|',
                                                                       ('from_user_id', '=', current.id),
                                                                       ('to_user_id', '=', current.id)])
@@ -273,7 +278,7 @@ class ConnectController(http.Controller, SubscriptionMixin):
             selected_partner = request.env['res.partner'].sudo().browse(int(user_id))
         if not partners:
             return request.render('subscription_package_extended.no_chats_template')
-        values = {'partners': partners, 'selected_partner': selected_partner}
+        values = {'partners': partners, 'selected_partner': selected_partner,'muted_ids': muted_ids,}
         return request.render('subscription_package_extended.chatbox_template', values)
 
 
@@ -386,45 +391,6 @@ class ChatTermsController(http.Controller):
             request.env['chat.block.user'].sudo().create({'user_id': current.id, 'blocked_user_id': int(user_id)})
         return {'status': 'ok'}
 
-    @http.route('/chat/toggle_mute', type='json', auth='user')
-    def toggle_mute(self, user_id, action):
-        current = request.env.user.partner_id
-        mute_obj = request.env['chat.mute.user'].sudo()
-        existing = mute_obj.search([
-            ('user_id', '=', current.id),
-            ('muted_user_id', '=', int(user_id))
-        ], limit=1)
-
-        if action == 'mute':
-            if not existing:
-                mute_obj.create({
-                    'user_id': current.id,
-                    'muted_user_id': int(user_id)
-                })
-            return {'status': 'ok', 'muted': True}
-
-        elif action == 'unmute':
-            if existing:
-                existing.unlink()
-            return {'status': 'ok', 'muted': False}
-
-        return {'status': 'error', 'muted': False}
-
-    # ------------------------------------------------------------------
-    # [CHANGE 13] /chat/mute_status
-    # Called by JS when a contact is opened so the Mute button can
-    # show the correct label ("Mute" or "Unmute") immediately.
-    # Returns {'muted': True/False}
-    # ------------------------------------------------------------------
-    @http.route('/chat/mute_status', type='json', auth='user')
-    def mute_status(self, user_id):
-        current = request.env.user.partner_id
-        is_muted = bool(request.env['chat.mute.user'].sudo().search([
-            ('user_id', '=', current.id),
-            ('muted_user_id', '=', int(user_id))
-        ], limit=1))
-        return {'muted': is_muted}
-
     @http.route('/chat/toggle_block', type='json', auth='user')
     def toggle_block(self, user_id, action):
         print("BLOCK CLICKED", user_id, action)
@@ -450,3 +416,73 @@ class ChatTermsController(http.Controller):
             existing.unlink()
 
         return {'status': 'ok'}
+
+    @http.route('/chat/toggle_mute', type='json', auth='user')
+    def toggle_mute(self, user_id, action):
+        """
+        Toggles mute status for a user.
+        Muted users: Messages still arrive + visible in chat.
+        Only popup notifications are suppressed.
+        """
+        current = request.env.user.partner_id
+        mute_obj = request.env['chat.mute.user'].sudo()
+
+        existing = mute_obj.search([
+            ('user_id', '=', current.id),
+            ('muted_user_id', '=', int(user_id))
+        ], limit=1)
+
+        if action == 'mute':
+            if not existing:
+                mute_obj.create({
+                    'user_id': current.id,
+                    'muted_user_id': int(user_id)
+                })
+        elif action == 'unmute':
+            if existing:
+                existing.unlink()
+
+        return {'status': 'ok'}
+
+    # Optional: Single mute route (if you want simple mute without toggle)
+    @http.route('/chat/mute_user', type='json', auth='user')
+    def mute_user(self, user_id):
+        current = request.env.user.partner_id
+        existing = request.env['chat.mute.user'].sudo().search([
+            ('user_id', '=', current.id),
+            ('muted_user_id', '=', int(user_id))
+        ], limit=1)
+        if not existing:
+            request.env['chat.mute.user'].sudo().create({
+                'user_id': current.id,
+                'muted_user_id': int(user_id)
+            })
+        return {'status': 'ok'}
+
+
+    # verification fee
+    @http.route('/purchase_verification', type='json', auth='user')
+    def purchase_verification(self):
+        """
+        When user pays for verification, set is_verified = True on their partner.
+        This can be called from a payment gateway webhook or form submission.
+        """
+        partner = request.env.user.partner_id
+
+        # Create/update verification record
+        verification = request.env['user.verification'].sudo().search([
+            ('partner_id', '=', partner.id)
+        ])
+
+        if not verification:
+            request.env['user.verification'].sudo().create({
+                'partner_id': partner.id,
+                'is_verified': True,
+            })
+        else:
+            verification.write({'is_verified': True})
+
+        # Also set the field on partner for quick access
+        partner.sudo().write({'is_verified': True})
+
+        return {'status': 'ok', 'message': 'Verification badge activated!'}

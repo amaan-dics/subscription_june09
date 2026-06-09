@@ -669,6 +669,75 @@ function initChat() {
             console.error(err);
         }
     });
+
+            // Update Mute Button State when contact changes
+    function updateMuteButtonState() {
+    if (!currentUserId) return;
+
+    const muteBtn = document.getElementById('mute_user_btn');
+    const muteText = document.getElementById('mute_text');
+    const muteIcon = document.getElementById('mute_icon');
+
+    if (!muteBtn || !muteText || !muteIcon) {
+        console.warn("Mute button elements not found yet");
+        return;
+    }
+
+    const mutedIds = Array.isArray(window.mutedIds) ? window.mutedIds : [];
+    const isMuted = mutedIds.includes(parseInt(currentUserId));
+
+    console.log(`User ${currentUserId} is muted:`, isMuted); // Debug
+
+    if (isMuted) {
+        muteBtn.dataset.action = 'unmute';
+        muteText.textContent = 'Unmute User';
+        muteIcon.classList.remove('fa-bell-slash');
+        muteIcon.classList.add('fa-bell');
+    } else {
+        muteBtn.dataset.action = 'mute';
+        muteText.textContent = 'Mute User';
+        muteIcon.classList.remove('fa-bell');
+        muteIcon.classList.add('fa-bell-slash');
+    }
+}
+
+        // === MUTE BUTTON HANDLER ===
+    $(document).on('click', '#mute_user_btn', async function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!currentUserId) return;
+
+    const isMuted = window.mutedIds.includes(parseInt(currentUserId));
+    const action = isMuted ? 'unmute' : 'mute';
+
+    const confirmMsg = isMuted
+        ? 'Are you sure you want to unmute this user?'
+        : 'Mute this user? You will still see their messages but will not receive popup notifications.';
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+        const response = await fetch('/chat/toggle_mute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: "2.0",
+                method: "call",
+                params: { user_id: currentUserId, action: action }
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.result && data.result.status === 'ok') {
+            window.location.href = `/chatbox?user_id=${currentUserId}`;
+        }
+    } catch (err) {
+        console.error("Mute toggle error:", err);
+    }
+});
+
     document.addEventListener("click", async function (e) {
         if (e.target.closest('#mobile_chat_toggle')) {
             e.preventDefault();
@@ -695,6 +764,7 @@ function initChat() {
             }
 
             currentUserId = newUserId;
+            updateMuteButtonState();
             if (isSwitch) {
                 allMessages = [];
                 oldestVisibleDate = null;
@@ -753,6 +823,11 @@ function initChat() {
             document.querySelector(".contact_item")?.click();
         }, 300);
     }
+
+        // Ensure mute button updates after initial load
+    setTimeout(() => {
+        updateMuteButtonState();
+    }, 1000);
 
     setInterval(pollLoad, 1000);
     setInterval(checkNotifications, 1000);
@@ -887,3 +962,4 @@ if (document.readyState === "loading") {
 } else {
     initChat();
 }
+
