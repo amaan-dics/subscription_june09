@@ -437,8 +437,24 @@
                         <p>Demo verification description. Replace with your actual explanation of the verification
                             process, its benefits, and how members' data is protected.
                         </p>
-                        <a href="/" class="btn btn-gold-border">Get Verified — ₹499 One-Time</a>
-                        <p class="vprice">Free with Platinum membership</p>
+
+                        <t t-if="not env.user.partner_id.is_verified">
+                            <form action="/shop/cart/update" method="post" class="d-inline-block">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="add_qty" value="1"/>
+                                <input type="hidden" name="product_id"
+                                       t-att-value="(request.env.ref('subscription_package_extended.product_template_verification').product_variant_id and request.env.ref('subscription_package_extended.product_template_verification').product_variant_id.id) or 0"/>
+                                <button type="submit" class="btn btn-gold-border">Get Verified — ₹499 One-Time</button>
+                            </form>
+                            <p class="vprice">Free with Platinum membership</p>
+                        </t>
+
+                        <t t-else="">
+                            <div class="alert alert-success d-inline-block mt-2">
+                                <i class="fa fa-check-circle me-1"/>
+                                You are a verified member! Your badge is active.
+                            </div>
+                        </t>
                     </div>
                 </section>
                 <section id="courses" class="courses">

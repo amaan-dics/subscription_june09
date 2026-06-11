@@ -460,29 +460,3 @@ class ChatTermsController(http.Controller):
         return {'status': 'ok'}
 
 
-    # verification fee
-    @http.route('/purchase_verification', type='json', auth='user')
-    def purchase_verification(self):
-        """
-        When user pays for verification, set is_verified = True on their partner.
-        This can be called from a payment gateway webhook or form submission.
-        """
-        partner = request.env.user.partner_id
-
-        # Create/update verification record
-        verification = request.env['user.verification'].sudo().search([
-            ('partner_id', '=', partner.id)
-        ])
-
-        if not verification:
-            request.env['user.verification'].sudo().create({
-                'partner_id': partner.id,
-                'is_verified': True,
-            })
-        else:
-            verification.write({'is_verified': True})
-
-        # Also set the field on partner for quick access
-        partner.sudo().write({'is_verified': True})
-
-        return {'status': 'ok', 'message': 'Verification badge activated!'}

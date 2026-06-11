@@ -14,6 +14,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'data/product_verification.xml',
         'views/subscription_package_plan_views.xml',
         'views/subscription_type_views.xml',
         'views/subscription_comparisons_template.xml',

@@ -240,36 +240,24 @@ class VerificationController(http.Controller):
     @http.route('/purchase_verification', type='json', auth='user')
     def purchase_verification(self, payment_reference=None):
         """
-        [CHANGE 15] Purchase verification badge.
-
-        Called by your payment gateway webhook or form when the user
-        successfully completes payment for the verification badge.
-
-        Args:
-            payment_reference: optional payment/transaction ID for audit trail
-
-        Returns:
-            {'status': 'ok', 'message': '...'}
+        [CHANGE 15] Purchase verification badge webhook or manual activation endpoint.
         """
         partner = request.env.user.partner_id
 
-        # Check if already verified
+        # Unique safeguard search
         verification = request.env['user.verification'].sudo().search([
             ('partner_id', '=', partner.id)
         ], limit=1)
 
-        if verification:
-            # Already verified, just return success
-            return {'status': 'ok', 'message': 'Already verified!'}
+        if not verification:
+            request.env['user.verification'].sudo().create({
+                'partner_id': partner.id,
+                'is_verified': True,
+                'payment_reference': payment_reference or '',
+            })
+        else:
+            verification.write({'is_verified': True})
 
-        # Create new verification record
-        request.env['user.verification'].sudo().create({
-            'partner_id': partner.id,
-            'is_verified': True,
-            'payment_reference': payment_reference or '',
-        })
-
-        # Also set the flag on partner for quick template access
         partner.sudo().write({'is_verified': True})
 
         return {
@@ -279,12 +267,5 @@ class VerificationController(http.Controller):
 
     @http.route('/verify_check', type='json', auth='user')
     def verify_check(self):
-        """
-        [CHANGE 15] Check current user's verification status.
-        Useful for updating UI without page reload.
-
-        Returns:
-            {'is_verified': bool}
-        """
         partner = request.env.user.partner_id
         return {'is_verified': bool(partner.is_verified)}

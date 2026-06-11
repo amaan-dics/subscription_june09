@@ -34,7 +34,7 @@
                                             </button>
                                         </t>
                                         <t t-elif="not req">
-                                            <a t-att-href="'/send_request/%s' % user.id" class="match-btn gold-btn">
+                                            <a t-att-href="'/send_request/%s' % user.id" class="match-btn text-decoration-none gold-btn" style="text-decoration:none;">
                                                 Connect
                                             </a>
                                         </t>

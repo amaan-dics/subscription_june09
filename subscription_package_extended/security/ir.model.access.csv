@@ -7,3 +7,4 @@ access_chat_terms,chat.terms,model_chat_terms,base.group_user,1,1,1,1
 access_chat_terms_acceptance,chat.terms.acceptance,model_chat_terms_acceptance,base.group_user,1,1,1,1
 access_chat_block_user,chat.block.user,model_chat_block_user,base.group_user,1,1,1,1
 access_chat_mute_user,chat.mute.user,model_chat_mute_user,base.group_portal,1,1,1,0
+access_user_verification,access_user_verification,model_user_verification,base.group_user,1,0,0,0

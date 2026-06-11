@@ -2284,10 +2284,6 @@ nav {
     overflow: hidden;
 }
 
-.match-wrap {
-    max-width: 1450px;
-    margin: 0 auto;
-}
 
 .match-head {
     margin-bottom: 2rem;
@@ -2531,7 +2527,7 @@ nav {
 
 @media (max-width: 768px) {
     .match-page {
-        padding: 2rem 1rem 4rem;
+        padding: 3rem 1rem 4rem;
     }
 
     .match-head h1 {

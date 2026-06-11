@@ -25,7 +25,7 @@ class UserVerification(models.Model):
         required=True,
         ondelete='cascade',
         index=True,
-        unique=True,  # Only one verification record per user
+        # Note: Odoo Field does not accept `unique` param. Use SQL constraint instead.
     )
 
     # When was verification purchased (for record-keeping)
@@ -47,3 +47,7 @@ class UserVerification(models.Model):
         default=True,
         readonly=True,
     )
+
+    _sql_constraints = [
+        ('unique_partner_verification', 'unique(partner_id)', 'This partner already has a verification record.'),
+    ]

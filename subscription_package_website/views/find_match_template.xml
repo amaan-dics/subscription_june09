@@ -114,19 +114,25 @@
                            '&amp;', ('from_user_id','=',current_user.id), ('to_user_id','=',user.id),
                            '&amp;', ('from_user_id','=',user.id), ('to_user_id','=',current_user.id)], limit=1)"/>
                             <div class="match-card">
-                                <div class="online-dot"/>
-                                <t t-if="user.is_verified">
-                                    <div class="verified-badge" title="This user has been verified">
-                                        <i class="fa fa-check-circle"/>
-                                    </div>
-                                </t>
+
+
                                 <div class="avatar-wrap">
                                     <img t-att-src="'/partner/avatar/%s/image_1920' % user.id"
                                          class="member-avatar"/>
+
                                 </div>
                                 <div class="match-body">
                                     <h4>
                                         <t t-esc="user.name"/>
+                                        <t t-if="user.is_verified">
+                                            <span class="verified-badge-inline-wrapper">
+                                                <span class="verified-badge-inline-wrapper" title="This user has been verified">
+                                                            <img src="/subscription_package_extended/static/src/img/verified_user_badge.png"
+                                                                 alt="Verified"
+                                                                 style="width: 25px; height: 25px; object-fit: contain; display: block;"/>
+                                                        </span>
+                                            </span>
+                                        </t>
                                     </h4>
                                     <div class="member-meta">
                                         <t t-if="user.age">
@@ -148,7 +154,7 @@
                                             </t>
                                             <t t-elif="not req">
                                                 <a t-att-href="'/send_request/%s' % user.id"
-                                                   class="match-btn gold-btn"
+                                                   class="match-btn text-decoration-none gold-btn"
                                                    t-if="not connection_limit_reached">
                                                     Connect
                                                 </a>

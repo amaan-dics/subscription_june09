@@ -19,6 +19,56 @@
                 padding-top: 0;
                 }
                 }
+
+                /* --- Updated Inline Image Verified Badge Styles --- */
+                .verified-badge-inline-wrapper {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 6px;
+                vertical-align: middle;
+                position: relative;
+                }
+
+                .verified-badge-img {
+                width: 16px;
+                height: 16px;
+                object-fit: contain;
+                }
+
+                .contact-name-large .verified-badge-inline-wrapper {
+                margin-left: 8px;
+                }
+
+                .contact-name-large .verified-badge-img {
+                width: 20px;
+                height: 20px;
+                }
+
+                /* CSS Tooltip on hover */
+                .verified-badge-inline-wrapper::after {
+                content: 'Verified';
+                position: absolute;
+                bottom: -32px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #c49a2e;
+                color: #0e1510;
+                padding: 4px 8px;
+                border-radius: 3px;
+                font-size: 11px;
+                white-space: nowrap;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+                font-weight: 600;
+                letter-spacing: 0.05em;
+                z-index: 99;
+                }
+
+                .verified-badge-inline-wrapper:hover::after {
+                opacity: 1;
+                }
             </style>
             <div class="chat-wrapper position-relative">
                 <div class="container-fluid p-0 h-100">
@@ -53,18 +103,24 @@
                                             <img t-if="p.image_128"
                                                  t-att-src="'/partner/avatar/%s/image_128' % p.id"
                                                  class="chat-avatar"/>
-
-                                            <t t-if="p.is_verified">
-                                                <div class="verified-badge" title="This user has been verified">
-                                                    <i class="fa fa-check-circle"/>
-                                                </div>
-                                            </t>
                                         </div>
                                         <div class="contact-info flex-grow-1 overflow-hidden">
                                             <div class="d-flex justify-content-between align-items-center w-100">
                                                 <span class="contact-name text-truncate">
                                                     <t t-esc="p.name"/>
+                                                    <t t-if="p.is_verified">
+                                                        <span class="verified-badge-inline-wrapper mx-0"
+                                                              title="This user has been verified"
+                                                              style="margin-left: 0px !important;">
+                                                            <img src="/subscription_package_extended/static/src/img/verified_user_badge.png"
+                                                                 alt="Verified"
+                                                                 style="width: 22px; height: 22px; object-fit: contain; display: block;"/>
+                                                        </span>
+
+                                                    </t>
                                                 </span>
+
+
                                                 <span class="contact-unread-badge d-none"
                                                       t-att-id="'unread_partner_' + str(p.id)"
                                                       t-att-data-user-id="p.id">0
@@ -101,6 +157,18 @@
                                             <div class="d-flex flex-column overflow-hidden">
                                                 <span class="contact-name-large text-truncate">
                                                     <t t-esc="p.name"/>
+                                                    <t t-if="p.is_verified">
+                                                        <span class="verified-badge-inline-wrapper mx-0"
+                                                              title="This user has been verified"
+                                                              style="margin-left: 0px !important;">
+                                                            <img src="/subscription_package_extended/static/src/img/verified_user_badge.png"
+                                                                 alt="Verified"
+                                                                 style="width: 31px; height: 31px; object-fit: contain; display: block;"/>
+                                                        </span>
+
+
+                                                    </t>
+
                                                 </span>
 
                                             </div>
@@ -152,7 +220,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Pass muted users list to JavaScript -->
             <script>
                 window.mutedIds =<t t-out="muted_ids or []"/>;
                 console.log("Muted IDs loaded:", window.mutedIds);
@@ -215,22 +282,18 @@
             <div class="estate-screen">
                 <div class="kyc-card">
 
-                    <!-- Icon -->
                     <div class="kyc-icon-wrap">
                         <span class="kyc-icon">&#x1F4CB;</span>
                     </div>
 
-                    <!-- Badge -->
                     <div class="kyc-badge">VERIFICATION IN PROGRESS</div>
 
-                    <!-- Title & Sub -->
                     <h2 class="estate-title">KYC Verification Pending</h2>
                     <p class="estate-sub">
                         Your identity is being reviewed by our team. Chat will be unlocked
                         once your verification is approved. This usually takes 1–2 business days.
                     </p>
 
-                    <!-- Progress Tracker -->
                     <div class="kyc-tracker">
                         <div class="kyc-step kyc-done">
                             <div class="kyc-step-dot kyc-dot-done">
@@ -256,7 +319,6 @@
                         </div>
                     </div>
 
-                    <!-- Note -->
                     <div class="kyc-note">
                         <i class="fa fa-circle-o kyc-note-icon"/>
                         If you haven&#x27;t submitted your documents yet, please complete your

@@ -684,8 +684,8 @@
     display: none;
 }
 
-@media (min-width: 1024px){
-    .chat-wrapper{
+@media (min-width: 1024px) {
+    .chat-wrapper {
         padding-top: 70px !important;
         height: 100vh !important;
     }
@@ -720,76 +720,48 @@
    Shared across all pages: find_match, requests,
    chat, and profile pages.
    ========================================= */
-
-/* Badge icon positioned absolutely in top-right of card/avatar area */
-.verified-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 28px;
-    height: 28px;
-    background: #c49a2e;
-    border-radius: 50%;
-    display: flex;
+/* --- Updated Inline Image Verified Badge Styles --- */
+.verified-badge-inline-wrapper {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    z-index: 5;
-    border: 2px solid #0e1510;
-}
-
-/* Gold checkmark tick icon */
-.verified-badge i.fa-check-circle {
-    color: #0e1510;
-    font-size: 16px;
-}
-
-/* On match cards: position relative to .match-card so absolute positioning works */
-.match-card {
+    /*margin-left: 6px;*/
+    vertical-align: middle;
     position: relative;
 }
 
-/* On request/chat avatars: position relative to the avatar-letter or img wrapper */
-.avatar-container {
-    position: relative;
+.verified-badge-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
 }
 
-/* Responsive: ensure badge is visible on mobile */
-@media (max-width: 768px) {
-    .verified-badge {
-        width: 24px;
-        height: 24px;
-        top: 8px;
-        right: 8px;
-        font-size: 14px;
-    }
+.contact-name-large .verified-badge-inline-wrapper {
+    margin-left: 8px;
 }
 
-/* Tooltip on hover (optional, nice-to-have) */
-.verified-badge {
-    cursor: help;
+.contact-name-large .verified-badge-img {
+    width: 20px;
+    height: 20px;
 }
 
-.verified-badge::after {
-    content: 'Verified';
-    position: absolute;
-    bottom: -28px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #c49a2e;
-    color: #0e1510;
-    padding: 4px 8px;
-    border-radius: 3px;
-    font-size: 11px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-}
 
-.verified-badge:hover::after {
+.verified-badge-inline-wrapper:hover::after {
     opacity: 1;
+}
+
+.o_portal_wrap {
+    padding-top: 90px !important;;
+}
+
+
+* {
+    font-family: "DM Sans", sans-serif !important
+}
+
+@media (min-width: 992px) {
+    .row-cols-lg-3 > * {
+        width: 100% !important;
+        margin: 2% !important;
+    }
 }

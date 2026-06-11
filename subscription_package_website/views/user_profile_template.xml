@@ -4,7 +4,7 @@
         <t t-call="website.layout">
             <div class="profile-page connect" style="min-height: 100vh; background: #0b110c;">
                 <div class="container"
-                     style="max-width: 1000px; margin: 0 auto; padding-top: 40px; padding-bottom: 80px;">
+                     style="max-width: 1000px; margin: 3rem auto; padding-bottom: 80px;">
                     <!--  Header  -->
                     <div class="mb-5">
                         <h2 class="st lt" style="font-size: 2rem; color: #fff; margin-bottom: 0.3rem;">My Profile</h2>
@@ -61,6 +61,18 @@
                                 <h4 class="text-white mb-1" style="font-size: 1.2rem; font-weight: 500;">
                                     <t t-esc="partner.name"/>
                                 </h4>
+                                <p >
+                                    <t t-if="partner.is_verified">
+                                            <span class="verified-badge-inline-wrapper text-yellow" style="color: #c49a2e;">
+                                                <img src="/subscription_package_extended/static/src/img/verified_user_badge.png"
+                                                                 alt="Verified"
+                                                                 style="width: 31px; height: 31px; object-fit: contain; display: block; "/>
+
+
+                                                Verified User
+                                            </span>
+                                        </t>
+                                </p>
                                 <p style="color: rgba(255,255,255,0.4); font-size: 0.85rem; margin-bottom: 1.2rem;">
                                     <t t-esc="partner.email"/>
                                 </p>

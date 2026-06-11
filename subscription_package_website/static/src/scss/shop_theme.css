@@ -697,7 +697,7 @@ button.btn-primary[name="o_payment_submit_button"],
 .form-check {
     display: block;
     min-height: 1.5rem;
-    padding-left: 1.5em;
+    padding-left: 2.5em;
     margin-bottom: 0.125rem;
 }
 
@@ -951,7 +951,7 @@ a.bg-100:hover {
     color: #ff4848d1 !important;
 }
 .oe_website_sale {
-    padding-top: 35px !important;
+    padding-top: 3.5rem !important;
 }
 
 
@@ -1049,4 +1049,9 @@ a.bg-100:hover {
     width: 100%;
     display: flex;
     flex-direction: column;
+}
+
+
+.order-2 {
+    margin: 2% 0;
 }
