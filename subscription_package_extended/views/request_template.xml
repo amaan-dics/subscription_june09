@@ -15,7 +15,7 @@
                             <t t-foreach="incoming_requests" t-as="req">
                                 <div class="req-item">
                                     <div class="req-user">
-                                        <img t-att-src="'/web/image/res.partner/%s/image_1920' % req.from_user_id.id"
+                                        <img t-att-src="'/partner/avatar/%s/image_128' % req.from_user_id.id"
                                              class="req-avatar"/>
 
                                         <div class="req-info">
@@ -44,7 +44,7 @@
                                         <t t-if="connection_limit_reached">
                                             <a class="req-accept req-accept--disabled"
                                                style="pointer-events:none; opacity:0.4; cursor:not-allowed;">
-                                                Limit Reached
+                                                 Limit Reached
                                             </a>
                                         </t>
                                         <t t-else="">
@@ -77,7 +77,7 @@
                             <t t-foreach="sent_requests" t-as="req">
                                 <div class="req-item">
                                     <div class="req-user">
-                                        <img t-att-src="'/web/image/res.partner/%s/image_1920' % req.to_user_id.id"
+                                        <img t-att-src="'/partner/avatar/%s/image_128' % req.to_user_id.id"
                                              class="req-avatar"/>
 
                                         <div class="req-info">
@@ -128,7 +128,7 @@
                             <t t-foreach="accepted_requests" t-as="req">
                                 <div class="req-item">
                                     <div class="req-user">
-                                        <img t-att-src="'/web/image/res.partner/%s/image_1920' % req.to_user_id.id"
+                                        <img t-att-src="'/partner/avatar/%s/image_128' % req.to_user_id.id"
                                              class="req-avatar"/>
 
                                         <div class="req-info">
