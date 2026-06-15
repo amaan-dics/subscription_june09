@@ -152,7 +152,7 @@
                                                     Connection Limit Reached
                                                 </div>
                                             </t>
-                                            <t t-elif="not req">
+                                            <t t-elif="not req or req.state == 'rejected'">
                                                 <a t-att-href="'/send_request/%s' % user.id"
                                                    class="match-btn text-decoration-none gold-btn"
                                                    t-if="not connection_limit_reached">

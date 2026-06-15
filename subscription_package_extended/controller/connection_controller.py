@@ -194,6 +194,17 @@ class ConnectController(http.Controller, SubscriptionMixin):
             if target.user_ids:
                 request.env['bus.bus'].sudo()._sendone(target.id, 'connect_request', {'from': current_user.name,
                                                                                       'request_id': req.id})
+        elif existing.state == 'rejected':
+            # Reset and reuse the existing record, setting the current user as the sender
+            existing.write({
+                'from_user_id': current_user.id,
+                'to_user_id': user_id,
+                'state': 'pending'
+            })
+            target = request.env['res.partner'].sudo().browse(user_id)
+            if target.user_ids:
+                request.env['bus.bus'].sudo()._sendone(target.id, 'connect_request', {'from': current_user.name,
+                                                                                      'request_id': existing.id})
         return request.redirect('/match')
 
     @http.route('/accept_request/<int:req_id>', type='http', auth='user', website=True)
